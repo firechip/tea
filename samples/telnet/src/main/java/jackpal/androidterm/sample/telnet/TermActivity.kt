@@ -1,26 +1,25 @@
-package jackpal.androidterm.sample.telnet;
+package jackpal.androidterm.sample.telnet
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.text.Editable;
-import android.text.method.TextKeyListener;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.Button;
-import android.widget.EditText;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-
-import jackpal.androidterm.emulatorview.EmulatorView;
-import jackpal.androidterm.emulatorview.TermSession;
+import android.app.Activity
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import android.text.Editable
+import android.text.method.TextKeyListener
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.KeyEvent
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
+import jackpal.androidterm.emulatorview.EmulatorView
+import jackpal.androidterm.emulatorview.TermSession
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.Socket
 
 /**
  * This sample activity demonstrates the use of EmulatorView.
@@ -29,128 +28,112 @@ import jackpal.androidterm.emulatorview.TermSession;
  * to a local program.  The Telnet connection demonstrates a more complex case;
  * see the TelnetSession class for more details.
  */
-public class TermActivity extends Activity
-{
-    final private static String TAG = "TermActivity";
-    private EditText mEntry;
-    private EmulatorView mEmulatorView;
-    private TermSession mSession;
+class TermActivity : Activity() {
+    private var mEntry: EditText? = null
+    private var mEmulatorView: EmulatorView? = null
+    private var mSession: TermSession? = null
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.term_activity);
+    /** Called when the activity is first created.  */
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.term_activity)
 
         /* Text entry box at the bottom of the activity.  Note that you can
            also send input (whether from a hardware device or soft keyboard)
-           directly to the EmulatorView. */
-        mEntry = findViewById(R.id.term_entry);
-        mEntry.setOnEditorActionListener((v, action, ev) -> {
+           directly to the EmulatorView. */mEntry = findViewById(R.id.term_entry)
+        mEntry?.setOnEditorActionListener(OnEditorActionListener setOnEditorActionListener@{ v: TextView, _: Int, ev: KeyEvent? ->
             // Ignore enter-key-up events
-            if (ev != null && ev.getAction() == KeyEvent.ACTION_UP) {
-                return false;
+            if (ev != null && ev.action == KeyEvent.ACTION_UP) {
+                return@setOnEditorActionListener false
             }
             // Don't try to send something if we're not connected yet
-            TermSession session = mSession;
+            val session = mSession
             if (mSession == null) {
-                return true;
+                return@setOnEditorActionListener true
             }
-
-            Editable e = (Editable) v.getText();
+            val e = v.text as Editable
             // Write to the terminal session
-            session.write(e.toString());
-            session.write('\r');
-            TextKeyListener.clear(e);
-            return true;
-        });
+            session!!.write(e.toString())
+            session.write('\r'.toInt())
+            TextKeyListener.clear(e)
+            true
+        })
 
         /* Sends the content of the text entry box to the terminal, without
            sending a carriage return afterwards */
-        Button sendButton = findViewById(R.id.term_entry_send);
-        sendButton.setOnClickListener(v -> {
+        val sendButton = findViewById<Button>(R.id.term_entry_send)
+        sendButton.setOnClickListener {
             // Don't try to send something if we're not connected yet
-            TermSession session = mSession;
+            val session = mSession
             if (mSession == null) {
-                return;
+                return@setOnClickListener
             }
-            Editable e = mEntry.getText();
-            session.write(e.toString());
-            TextKeyListener.clear(e);
-        });
-
-        EmulatorView view = findViewById(R.id.emulatorView);
-        mEmulatorView = view;
+            val e = mEntry?.text
+            session!!.write(e.toString())
+            TextKeyListener.clear(e)
+        }
+        val view: EmulatorView = findViewById(R.id.emulatorView)
+        mEmulatorView = view
 
         /* Let the EmulatorView know the screen's density. */
-        DisplayMetrics metrics = new DisplayMetrics();
-        metrics = view.getResources().getDisplayMetrics();
-        view.setDensity(metrics);
+        val metrics: DisplayMetrics?
+        metrics = view.resources.displayMetrics
+        view.setDensity(metrics)
 
         /* Create a TermSession. */
-        Intent myIntent = getIntent();
-        String sessionType = myIntent.getStringExtra("type");
-        TermSession session;
-
-        if (sessionType != null && sessionType.equals("telnet")) {
+        val myIntent = intent
+        val sessionType = myIntent.getStringExtra("type")
+        val session: TermSession?
+        if (sessionType != null && sessionType == "telnet") {
             /* Telnet connection: we need to do the network connect on a
                separate thread, so kick that off and wait for it to finish. */
-            connectToTelnet(myIntent.getStringExtra("host"));
-            return;
+            connectToTelnet(myIntent.getStringExtra("host"))
+            return
         } else {
             // Create a local shell session.
-            session = createLocalTermSession();
+            session = createLocalTermSession()
             if (session == null) {
-                finish();
-                return;
+                finish()
+                return
             }
-            mSession = session;
+            mSession = session
         }
 
-        /* Attach the TermSession to the EmulatorView. */
-        view.attachSession(session);
+        /* Attach the TermSession to the EmulatorView. */view.attachSession(session)
 
         /* That's all you have to do!  The EmulatorView will call the attached
            TermSession's initializeEmulator() automatically, once it can
            calculate the appropriate screen size for the terminal emulator. */
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    override fun onResume() {
+        super.onResume()
 
         /* You should call this to let EmulatorView know that it's visible
-           on screen. */
-        mEmulatorView.onResume();
-
-        mEntry.requestFocus();
+           on screen. */mEmulatorView!!.onResume()
+        mEntry!!.requestFocus()
     }
 
-    @Override
-    protected void onPause() {
+    override fun onPause() {
         /* You should call this to let EmulatorView know that it's no longer
            visible on screen. */
-        mEmulatorView.onPause();
-
-        super.onPause();
+        mEmulatorView!!.onPause()
+        super.onPause()
     }
 
-    @Override
-    protected void onDestroy() {
+    override fun onDestroy() {
         if (mSession != null) {
-            mSession.finish();
+            mSession!!.finish()
         }
-
-        super.onDestroy();
+        super.onDestroy()
     }
 
     /**
      * Create a TermSession connected to a local shell.
      */
-    private TermSession createLocalTermSession() {
+    private fun createLocalTermSession(): TermSession? {
         /* Instantiate the TermSession ... */
-        TermSession session = new TermSession();
+        val session = TermSession()
 
         /* ... create a process ... */
         /* TODO:Make local session work without exec pty.
@@ -158,93 +141,90 @@ public class TermActivity extends Activity
         ProcessBuilder execBuild =
                 new ProcessBuilder(execPath, "/system/bin/sh", "-");
         */
-        ProcessBuilder execBuild =
-                new ProcessBuilder("/system/bin/sh", "-");
-        execBuild.redirectErrorStream(true);
-        Process exec;
-        try {
-            exec = execBuild.start();
-        } catch (Exception e) {
-            Log.e(TAG, "Could not start terminal process.", e);
-            return null;
+        val execBuild = ProcessBuilder("/system/bin/sh", "-")
+        execBuild.redirectErrorStream(true)
+        val exec: Process
+        exec = try {
+            execBuild.start()
+        } catch (e: Exception) {
+            Log.e(TAG, "Could not start terminal process.", e)
+            return null
         }
 
-        /* ... and connect the process's I/O streams to the TermSession. */
-        session.setTermIn(exec.getInputStream());
-        session.setTermOut(exec.getOutputStream());
+        /* ... and connect the process's I/O streams to the TermSession. */session.termIn = exec.inputStream
+        session.termOut = exec.outputStream
 
-        /* You're done! */
-        return session;
-
+        /* You're done! */return session
     }
 
     /**
      * Connect to the Telnet server.
      */
-    public void connectToTelnet(String server) {
-        String[] telnetServer = server.split(":", 2);
-        final String hostname = telnetServer[0];
-        int port = 23;
-        if (telnetServer.length == 2) {
-            port = Integer.parseInt(telnetServer[1]);
+    private fun connectToTelnet(server: String?) {
+        val telnetServer = server?.split(";", ignoreCase = true, limit = 2)?.toTypedArray()
+        val hostname = telnetServer?.get(0)
+        var port = 23
+        if (telnetServer?.size == 2) {
+            port = telnetServer[1].toInt()
         }
-        final int portNum = port;
+        val portNum = port
 
         /* On Android API >= 11 (Honeycomb and later), network operations
            must be done off the main thread, so kick off a new thread to
-           perform the connect. */
-        new Thread() {
-            public void run() {
+           perform the connect. */object : Thread() {
+            override fun run() {
                 // Connect to the server
-                try {
-                    mSocket = new Socket(hostname, portNum);
-                } catch (IOException e) {
-                    Log.e(TAG, "Could not create socket", e);
-                    return;
+                mSocket = try {
+                    Socket(hostname, portNum)
+                } catch (e: IOException) {
+                    Log.e(TAG, "Could not create socket", e)
+                    return
                 }
 
                 // Notify the main thread of the connection
-                mHandler.sendEmptyMessage(MSG_CONNECTED);
+                mHandler.sendEmptyMessage(MSG_CONNECTED)
             }
-        }.start();
+        }.start()
     }
 
     /**
      * Handler which will receive the message from the Telnet connect thread
      * that the connection has been established.
      */
-    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
+    private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
             if (msg.what == MSG_CONNECTED) {
-                createTelnetSession();
+                createTelnetSession()
             }
         }
-    };
-
-    Socket mSocket;
-    private static final int MSG_CONNECTED = 1;
+    }
+    var mSocket: Socket? = null
 
     /* Create the TermSession which will handle the Telnet protocol and
        terminal emulation. */
-    private void createTelnetSession() {
-        Socket socket = mSocket;
+    private fun createTelnetSession() {
+        val socket = mSocket
 
         // Get the socket's input and output streams
-        InputStream termIn;
-        OutputStream termOut;
+        val termIn: InputStream
+        val termOut: OutputStream
         try {
-            termIn = socket.getInputStream();
-            termOut = socket.getOutputStream();
-        } catch (IOException e) {
+            termIn = socket!!.getInputStream()
+            termOut = socket.getOutputStream()
+        } catch (e: IOException) {
             // Handle exception here
-            return;
+            return
         }
 
         /* Create the TermSession and attach it to the view.  See the
            TelnetSession class for details. */
-        TermSession session = new TelnetSession(termIn, termOut);
-        mEmulatorView.attachSession(session);
-        mSession = session;
+        val session: TermSession = TelnetSession(termIn, termOut)
+        mEmulatorView!!.attachSession(session)
+        mSession = session
+    }
+
+    companion object {
+        private const val TAG = "TermActivity"
+        private const val MSG_CONNECTED = 1
     }
 }

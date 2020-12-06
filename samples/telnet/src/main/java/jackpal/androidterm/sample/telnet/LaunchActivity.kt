@@ -1,43 +1,38 @@
-package jackpal.androidterm.sample.telnet;
+package jackpal.androidterm.sample.telnet
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View.OnClickListener;
-import android.widget.EditText;
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.EditText
 
 /**
  * Provides a UI to launch the terminal emulator activity, connected to
  * either a local shell or a Telnet server.
  */
-public class LaunchActivity extends Activity
-{
-
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.launch_activity);
-        final Context context = this;
-        addClickListener(R.id.launchLocal, v -> {
-            Intent intent = new Intent(context, TermActivity.class);
-            intent.putExtra("type", "local");
-            startActivity(intent);
-        });
-
-        final EditText hostEdit = findViewById(R.id.hostname);
-        addClickListener(R.id.launchTelnet, v -> {
-            Intent intent = new Intent(context, TermActivity.class);
-            intent.putExtra("type", "telnet");
-            String hostname = hostEdit.getText().toString();
-            intent.putExtra("host", hostname);
-            startActivity(intent);
-        });
+class LaunchActivity : Activity() {
+    /** Called when the activity is first created.  */
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.launch_activity)
+        val context: Context = this
+        addClickListener(R.id.launchLocal) { v: View? ->
+            val intent = Intent(context, TermActivity::class.java)
+            intent.putExtra("type", "local")
+            startActivity(intent)
+        }
+        val hostEdit = findViewById<EditText>(R.id.hostname)
+        addClickListener(R.id.launchTelnet) { v: View? ->
+            val intent = Intent(context, TermActivity::class.java)
+            intent.putExtra("type", "telnet")
+            val hostname = hostEdit.text.toString()
+            intent.putExtra("host", hostname)
+            startActivity(intent)
+        }
     }
 
-    private void addClickListener(int buttonId, OnClickListener onClickListener) {
-        findViewById(buttonId).setOnClickListener(onClickListener);
+    private fun addClickListener(buttonId: Int, onClickListener: View.OnClickListener) {
+        findViewById<View>(buttonId).setOnClickListener(onClickListener)
     }
 }
