@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Android-Terminal-Emulator.iml" filepath="$PROJECT_DIR$/.idea/Android-Terminal-Emulator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/emulatorview/Android-Terminal-Emulator.emulatorview.iml" filepath="$PROJECT_DIR$/.idea/modules/emulatorview/Android-Terminal-Emulator.emulatorview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libtermexec/Android-Terminal-Emulator.libtermexec.iml" filepath="$PROJECT_DIR$/.idea/modules/libtermexec/Android-Terminal-Emulator.libtermexec.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/samples/Android-Terminal-Emulator.samples.iml" filepath="$PROJECT_DIR$/.idea/modules/samples/Android-Terminal-Emulator.samples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/samples/intents/Android-Terminal-Emulator.samples.intents.iml" filepath="$PROJECT_DIR$/.idea/modules/samples/intents/Android-Terminal-Emulator.samples.intents.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/samples/pathbroadcasts/Android-Terminal-Emulator.samples.pathbroadcasts.iml" filepath="$PROJECT_DIR$/.idea/modules/samples/pathbroadcasts/Android-Terminal-Emulator.samples.pathbroadcasts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/samples/telnet/Android-Terminal-Emulator.samples.telnet.iml" filepath="$PROJECT_DIR$/.idea/modules/samples/telnet/Android-Terminal-Emulator.samples.telnet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/term/Android-Terminal-Emulator.term.iml" filepath="$PROJECT_DIR$/.idea/modules/term/Android-Terminal-Emulator.term.iml" />
+    </modules>
+  </component>
+</project>
